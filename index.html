@@ -3,155 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Currículo Pro</title>
+    <title>Gerador de Currículo Profissional</title>
     <style>
         :root {
-            --primary-color: #006b54; /* Verde do modelo */
-            --bg-sidebar: #e0f2f1;
-            --text-dark: #333;
+            --primary: #006b54;
+            --sidebar-bg: #e0f2f1;
+            --text-main: #333;
+            --text-light: #666;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
 
-        /* Área de Edição */
-        .editor-container {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        body { background: #525659; margin: 0; display: flex; flex-direction: column; align-items: center; }
+
+        /* Painel de Controle (Escondido na Impressão) */
+        .no-print {
+            background: #fff;
             width: 100%;
-            max-width: 800px;
-            margin-bottom: 30px;
+            max-width: 900px;
+            padding: 25px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .full-width { grid-column: span 2; }
+        
+        label { display: block; font-weight: bold; margin: 10px 0 5px; color: var(--primary); }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
 
-        /* Visualização do Currículo (Layout do Modelo) */
-        #resume-preview {
+        button.btn-save {
+            background: #27ae60; color: white; padding: 15px 30px; border: none;
+            border-radius: 5px; cursor: pointer; font-size: 18px; margin-top: 20px; width: 100%;
+        }
+
+        /* Área do Currículo (Simulação A4) */
+        #cv-page {
             background: white;
-            width: 210mm; /* Tamanho A4 */
+            width: 210mm;
             min-height: 297mm;
-            display: grid;
-            grid-template-columns: 30% 70%;
-            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            display: flex;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            margin-bottom: 50px;
         }
 
-        /* Coluna Esquerda (Sidebar) */
-        .sidebar {
-            background-color: var(--bg-sidebar);
+        /* Lado Esquerdo */
+        .side-bar {
+            width: 32%;
+            background-color: var(--sidebar-bg);
             padding: 30px 20px;
-            color: var(--text-dark);
+            color: var(--text-main);
         }
 
-        .profile-img {
-            width: 120px;
-            height: 120px;
-            background: #ccc;
-            border-radius: 50%;
-            margin: 0 auto 20px;
-            display: block;
-            border: 4px solid var(--primary-color);
+        .photo-container {
+            width: 150px; height: 150px; border-radius: 50%;
+            border: 5px solid var(--primary); margin: 0 auto 25px;
+            overflow: hidden; background: #ddd;
+        }
+        #preview-img { width: 100%; height: 100%; object-fit: cover; }
+
+        .side-bar h3 { 
+            color: var(--primary); border-bottom: 2px solid var(--primary); 
+            text-transform: uppercase; font-size: 16px; margin-top: 30px;
         }
 
-        .sidebar h2 { color: var(--primary-color); font-size: 1.2rem; border-bottom: 2px solid var(--primary-color); }
+        /* Barras de Progresso */
+        .skill-item { margin-bottom: 12px; }
+        .skill-name { font-size: 14px; display: flex; justify-content: space-between; }
+        .progress-bg { background: #c8e6c9; height: 8px; border-radius: 4px; margin-top: 4px; }
+        .progress-fill { background: var(--primary); height: 100%; border-radius: 4px; transition: 0.5s; }
 
-        /* Coluna Direita (Conteúdo) */
-        .main-content {
-            padding: 40px;
+        /* Lado Direito */
+        .main-content { width: 68%; padding: 40px; }
+        .main-content h1 { color: var(--primary); margin: 0; font-size: 32px; text-transform: uppercase; }
+        
+        .section-header {
+            color: var(--primary); font-size: 20px; border-bottom: 1px solid #ccc;
+            margin: 25px 0 10px; font-weight: bold;
         }
 
-        .main-content h1 { color: var(--primary-color); margin-top: 0; text-transform: uppercase; }
-        .section-title {
-            color: var(--primary-color);
-            border-bottom: 1px solid #ccc;
-            margin-top: 20px;
-            font-size: 1.3rem;
-        }
+        .exp-item { margin-bottom: 15px; }
+        .exp-title { font-weight: bold; color: #444; }
+        .exp-meta { font-size: 13px; color: var(--text-light); font-style: italic; }
 
-        /* Botão de Impressão */
-        .btn-print {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
+        /* Estilos de Impressão */
         @media print {
-            .editor-container, .btn-print { display: none; }
-            body { background: white; padding: 0; }
-            #resume-preview { box-shadow: none; }
+            body { background: white; }
+            .no-print { display: none; }
+            #cv-page { box-shadow: none; margin: 0; width: 100%; }
         }
     </style>
 </head>
 <body>
 
-    <div class="editor-container">
-        <h2>Preencha seus dados</h2>
-        <div class="input-group">
-            <label>Nome Completo</label>
-            <input type="text" id="inNome" placeholder="Ex: Carla Gomes Cunha" oninput="updateResume()">
+    <div class="no-print">
+        <h2>✎ Editor de Currículo Profissional</h2>
+        <div class="grid-form">
+            <div class="full-width">
+                <label>Foto do Perfil</label>
+                <input type="file" accept="image/*" onchange="loadFile(event)">
+            </div>
+            <div>
+                <label>Nome Completo</label>
+                <input type="text" id="inNome" placeholder="Ex: Carla Gomes Cunha" oninput="sync()">
+            </div>
+            <div>
+                <label>E-mail de Contato</label>
+                <input type="text" id="inEmail" placeholder="seu@email.com" oninput="sync()">
+            </div>
+            <div class="full-width">
+                <label>Resumo Profissional</label>
+                <textarea id="inResumo" rows="3" oninput="sync()"></textarea>
+            </div>
+            <div class="full-width">
+                <label>Experiência (Empresa | Cargo | Período)</label>
+                <textarea id="inExp" rows="4" placeholder="Ex: Escola ABC | Professor | 2020 - Atual" oninput="sync()"></textarea>
+            </div>
+            <div>
+                <label>Nível de Inglês (%)</label>
+                <input type="range" id="inIngles" min="0" max="100" value="70" oninput="sync()">
+            </div>
+            <div>
+                <label>Nível de Tecnologias (%)</label>
+                <input type="range" id="inTech" min="0" max="100" value="85" oninput="sync()">
+            </div>
         </div>
-        <div class="input-group">
-            <label>Resumo Profissional</label>
-            <textarea id="inResumo" rows="4" oninput="updateResume()"></textarea>
-        </div>
-        <div class="input-group">
-            <label>Experiência (Empresa | Cargo | Ano)</label>
-            <textarea id="inExp" rows="4" oninput="updateResume()"></textarea>
-        </div>
+        <button class="btn-save" onclick="window.print()">Gerar PDF Profissional</button>
     </div>
 
-    <button class="btn-print" onclick="window.print()">Baixar em PDF / Imprimir</button>
-
-    <div id="resume-preview">
-        <div class="sidebar">
-            <div class="profile-img"></div>
-            <h2 id="outNomeSidebar">NOME</h2>
-            <p><strong>Contato</strong></p>
-            <p>seu.email@exemplo.com</p>
+    <div id="cv-page">
+        <div class="side-bar">
+            <div class="photo-container">
+                <img id="preview-img" src="https://via.placeholder.com/150" alt="Foto">
+            </div>
             
-            <h2>Habilidades</h2>
-            <p>Comunicação, Gestão, Tecnologia.</p>
+            <h3 style="margin-top: 0;">Contato</h3>
+            <p id="outEmail" style="font-size: 14px;">seu@email.com</p>
+
+            <h3>Idiomas</h3>
+            <div class="skill-item">
+                <div class="skill-name"><span>Inglês</span> <span id="txtIngles">70%</span></div>
+                <div class="progress-bg"><div id="barIngles" class="progress-fill" style="width: 70%;"></div></div>
+            </div>
+
+            <h3>Habilidades</h3>
+            <div class="skill-item">
+                <div class="skill-name"><span>Tecnologias</span> <span id="txtTech">85%</span></div>
+                <div class="progress-bg"><div id="barTech" class="progress-fill" style="width: 85%;"></div></div>
+            </div>
         </div>
 
         <div class="main-content">
-            <h1 id="outNomeMain">SEU NOME COMPLETO</h1>
+            <h1 id="outNome">SEU NOME COMPLETO</h1>
             
-            <div class="section-title">Resumo</div>
-            <p id="outResumo">Seu resumo profissional aparecerá aqui conforme você digita.</p>
+            <div class="section-header">RESUMO</div>
+            <p id="outResumo" style="color: #555; line-height: 1.6;">Escreva aqui um breve resumo sobre sua carreira e principais conquistas.</p>
 
-            <div class="section-title">Experiência Profissional</div>
-            <p id="outExp" style="white-space: pre-line;">Detalhes da sua experiência.</p>
+            <div class="section-header">EXPERIÊNCIA PROFISSIONAL</div>
+            <div class="exp-item">
+                <div id="outExp" style="white-space: pre-line;">Detalhes das suas experiências anteriores...</div>
+            </div>
+
+            <div class="section-header">FORMAÇÃO ACADÊMICA</div>
+            <div class="exp-item">
+                <div class="exp-title">Graduação em [Seu Curso]</div>
+                <div class="exp-meta">Universidade Exemplo | Concluído em 2022</div>
+            </div>
         </div>
     </div>
 
     <script>
-        function updateResume() {
-            // Pega os valores dos inputs
-            const nome = document.getElementById('inNome').value;
-            const resumo = document.getElementById('inResumo').value;
-            const exp = document.getElementById('inExp').value;
+        // Função para carregar a imagem
+        function loadFile(event) {
+            const image = document.getElementById('preview-img');
+            image.src = URL.createObjectURL(event.target.files[0]);
+        };
 
-            // Aplica no currículo em tempo real
-            document.getElementById('outNomeSidebar').innerText = nome || "NOME";
-            document.getElementById('outNomeMain').innerText = nome || "SEU NOME COMPLETO";
-            document.getElementById('outResumo').innerText = resumo || "Seu resumo...";
-            document.getElementById('outExp').innerText = exp || "Sua experiência...";
-        }
-    </script>
+        // Função de Sincronização em Tempo Real
+        function sync() {
+            // Textos
+            document.getElementById('outNome').innerText = document.getElementById('inNome').value || "SEU NOME COMPLETO";
+            document.getElementById('outEmail').innerText = document.getElementById('inEmail').value || "seu@email.com";
+            document.getElementById('outResumo').innerText = document.getElementById('inResumo').value || "Seu resumo profissional...";
+            document.getElementById('outExp').innerText = document.getElementById('inExp').value || "Experiências profissionais...";
 
-</body>
-</html>
+            // Barras de Progresso
+            const inglesVal = document.getElementById
