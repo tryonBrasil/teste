@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Currículo Pro</title>
+    <style>
+        :root {
+            --primary-color: #006b54; /* Verde do modelo */
+            --bg-sidebar: #e0f2f1;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* Área de Edição */
+        .editor-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+
+        /* Visualização do Currículo (Layout do Modelo) */
+        #resume-preview {
+            background: white;
+            width: 210mm; /* Tamanho A4 */
+            min-height: 297mm;
+            display: grid;
+            grid-template-columns: 30% 70%;
+            box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        }
+
+        /* Coluna Esquerda (Sidebar) */
+        .sidebar {
+            background-color: var(--bg-sidebar);
+            padding: 30px 20px;
+            color: var(--text-dark);
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            background: #ccc;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+            border: 4px solid var(--primary-color);
+        }
+
+        .sidebar h2 { color: var(--primary-color); font-size: 1.2rem; border-bottom: 2px solid var(--primary-color); }
+
+        /* Coluna Direita (Conteúdo) */
+        .main-content {
+            padding: 40px;
+        }
+
+        .main-content h1 { color: var(--primary-color); margin-top: 0; text-transform: uppercase; }
+        .section-title {
+            color: var(--primary-color);
+            border-bottom: 1px solid #ccc;
+            margin-top: 20px;
+            font-size: 1.3rem;
+        }
+
+        /* Botão de Impressão */
+        .btn-print {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            .editor-container, .btn-print { display: none; }
+            body { background: white; padding: 0; }
+            #resume-preview { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="editor-container">
+        <h2>Preencha seus dados</h2>
+        <div class="input-group">
+            <label>Nome Completo</label>
+            <input type="text" id="inNome" placeholder="Ex: Carla Gomes Cunha" oninput="updateResume()">
+        </div>
+        <div class="input-group">
+            <label>Resumo Profissional</label>
+            <textarea id="inResumo" rows="4" oninput="updateResume()"></textarea>
+        </div>
+        <div class="input-group">
+            <label>Experiência (Empresa | Cargo | Ano)</label>
+            <textarea id="inExp" rows="4" oninput="updateResume()"></textarea>
+        </div>
+    </div>
+
+    <button class="btn-print" onclick="window.print()">Baixar em PDF / Imprimir</button>
+
+    <div id="resume-preview">
+        <div class="sidebar">
+            <div class="profile-img"></div>
+            <h2 id="outNomeSidebar">NOME</h2>
+            <p><strong>Contato</strong></p>
+            <p>seu.email@exemplo.com</p>
+            
+            <h2>Habilidades</h2>
+            <p>Comunicação, Gestão, Tecnologia.</p>
+        </div>
+
+        <div class="main-content">
+            <h1 id="outNomeMain">SEU NOME COMPLETO</h1>
+            
+            <div class="section-title">Resumo</div>
+            <p id="outResumo">Seu resumo profissional aparecerá aqui conforme você digita.</p>
+
+            <div class="section-title">Experiência Profissional</div>
+            <p id="outExp" style="white-space: pre-line;">Detalhes da sua experiência.</p>
+        </div>
+    </div>
+
+    <script>
+        function updateResume() {
+            // Pega os valores dos inputs
+            const nome = document.getElementById('inNome').value;
+            const resumo = document.getElementById('inResumo').value;
+            const exp = document.getElementById('inExp').value;
+
+            // Aplica no currículo em tempo real
+            document.getElementById('outNomeSidebar').innerText = nome || "NOME";
+            document.getElementById('outNomeMain').innerText = nome || "SEU NOME COMPLETO";
+            document.getElementById('outResumo').innerText = resumo || "Seu resumo...";
+            document.getElementById('outExp').innerText = exp || "Sua experiência...";
+        }
+    </script>
+
+</body>
+</html>
